@@ -418,7 +418,7 @@ function update(renderer, scene, camera, controls) {
 }
 
 function loadCubemap(number) {
-  var path = "/assets/cubemap/cmap-" + number + "/";
+  var path = "../assets/cubemap/cmap-" + number + "/";
   var format = ".png";
   var urls = [
     path + "px" + format,
@@ -610,7 +610,7 @@ function loadDefaultTextures(material) {
   });
 
   const loader = new THREE.TextureLoader();
-  const basePath = "/assets/textures/giants-causeway/giants_causeway_";
+  const basePath = "../assets/textures/giants-causeway/giants_causeway_";
 
   try {
     // Set default material properties
