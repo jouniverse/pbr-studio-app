@@ -1,0 +1,5 @@
+# ignore redundant, and Apple system files
+notes/
+assets/models/
+.DS_Store
+.cursorrules

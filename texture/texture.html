@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>PBR Studio</title>
+    <meta charset="UTF-8" />
+    <!-- favicon -->
+    <link
+      rel="icon"
+      type="image/png"
+      href="/assets/logos/favicon/favicon-96x96.png"
+      sizes="96x96"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/assets/logos/favicon/favicon.svg"
+    />
+    <link rel="shortcut icon" href="/assets/logos/favicon/favicon.ico" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/logos/favicon/apple-touch-icon.png"
+    />
+    <meta name="apple-mobile-web-app-title" content="PBR Studio" />
+    <link rel="manifest" href="/assets/logos/favicon/site.webmanifest" />
+    <style type="text/css">
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: Lucida Grande, sans-serif;
+        /* no scrollbar */
+        overflow: hidden;
+        scrollbar-color: black;
+      }
+
+      #webgl {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+      }
+
+      #texture-panel {
+        position: fixed;
+        left: -250px;
+        top: 0;
+        bottom: 0;
+        width: 250px;
+        background: #1a1a1a;
+        color: #fff;
+        padding: 15px;
+        padding-right: 25px;
+        overflow-y: auto;
+        transition: left 0.3s ease;
+        z-index: 1000;
+      }
+
+      #texture-panel.visible {
+        left: 0;
+      }
+
+      #toggle-panel {
+        position: absolute;
+        left: 250px;
+        top: 10px;
+        width: auto !important;
+        padding: 8px 16px;
+        background: #1a1a1a;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        transform: rotate(0deg);
+      }
+
+      #texture-panel.visible #toggle-panel {
+        transform: rotate(180deg);
+      }
+
+      #toggle-panel:hover {
+        color: #ff0000;
+        transform: scale(1.1);
+      }
+
+      #texture-panel.visible #toggle-panel:hover {
+        transform: rotate(180deg) scale(1.1);
+      }
+
+      #toggle-panel::before {
+        content: "❯";
+        display: inline-block;
+        font-size: 14px;
+      }
+
+      .custom-file {
+        margin-bottom: 25px;
+      }
+
+      .custom-file label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+        color: #fff;
+      }
+
+      .custom-file button {
+        width: 90%;
+        padding: 6px;
+        margin-bottom: 4px;
+        background: #303030;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: inherit;
+      }
+
+      .custom-file button:hover {
+        background: #404040;
+      }
+
+      .custom-file span {
+        display: block;
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 6px;
+        font-style: italic;
+      }
+
+      .button-container {
+        margin-top: 40px;
+      }
+
+      .button-container button {
+        width: 90%;
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        background: #303030;
+        color: #fff;
+        border: none;
+        border-radius: 20px;
+        font-family: inherit;
+      }
+
+      .button-container button:hover {
+        background: #404040;
+      }
+
+      .required label::after {
+        content: " *";
+        color: #ff0000;
+      }
+
+      /* Mobile blocker */
+      #mobile-blocker {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        z-index: 9999;
+        color: #fff;
+        text-align: center;
+        padding-top: 40vh;
+      }
+
+      #mobile-blocker p {
+        font-size: 1.2em;
+        margin: 0;
+        padding: 20px;
+      }
+
+      @media screen and (max-width: 1050px) {
+        #mobile-blocker {
+          display: block;
+        }
+      }
+
+      .github-corner {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+      }
+
+      .github-corner img {
+        width: 40px;
+        height: 40px;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+      }
+
+      .github-corner:hover {
+        transform: scale(1.1);
+      }
+
+      .github-corner:hover img {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="texture-panel">
+      <button id="toggle-panel"></button>
+      <h3>Texture Maps</h3>
+      <div class="custom-file required">
+        <label for="baseColorMap">Base Color Map</label>
+        <button onclick="document.getElementById('baseColorMap').click()">
+          Choose File
+        </button>
+        <input type="file" id="baseColorMap" accept="image/*" hidden />
+        <span id="baseColorMap-file-name">No file selected</span>
+      </div>
+      <div class="custom-file required">
+        <label for="normalMap">Normal Map</label>
+        <button onclick="document.getElementById('normalMap').click()">
+          Choose File
+        </button>
+        <input type="file" id="normalMap" accept="image/*" hidden />
+        <span id="normalMap-file-name">No file selected</span>
+      </div>
+      <div class="custom-file required">
+        <label for="roughnessMap">Roughness Map</label>
+        <button onclick="document.getElementById('roughnessMap').click()">
+          Choose File
+        </button>
+        <input type="file" id="roughnessMap" accept="image/*" hidden />
+        <span id="roughnessMap-file-name">No file selected</span>
+      </div>
+      <div class="custom-file required">
+        <label for="metallicMap">Metallic Map</label>
+        <button onclick="document.getElementById('metallicMap').click()">
+          Choose File
+        </button>
+        <input type="file" id="metallicMap" accept="image/*" hidden />
+        <span id="metallicMap-file-name">No file selected</span>
+      </div>
+      <div class="custom-file">
+        <label for="heightMap">Height Map</label>
+        <button onclick="document.getElementById('heightMap').click()">
+          Choose File
+        </button>
+        <input type="file" id="heightMap" accept="image/*" hidden />
+        <span id="heightMap-file-name">No file selected</span>
+      </div>
+      <div class="custom-file">
+        <label for="aoMap">Ambient Occlusion Map</label>
+        <button onclick="document.getElementById('aoMap').click()">
+          Choose File
+        </button>
+        <input type="file" id="aoMap" accept="image/*" hidden />
+        <span id="aoMap-file-name">No file selected</span>
+      </div>
+
+      <div class="button-container">
+        <button id="applyTexture">Apply Texture</button>
+        <button id="useDefault">Use Default</button>
+        <button id="clearTextures">Clear</button>
+        <button id="render">Render</button>
+      </div>
+    </div>
+    <div id="webgl"></div>
+
+    <script>
+      const fileInputs = [
+        "baseColorMap",
+        "normalMap",
+        "roughnessMap",
+        "metallicMap",
+        "heightMap",
+        "aoMap",
+      ];
+
+      fileInputs.forEach((inputId) => {
+        document
+          .getElementById(inputId)
+          .addEventListener("change", function () {
+            const spanId = `${inputId}-file-name`;
+            const span = document.getElementById(spanId);
+            if (span) {
+              span.textContent = this.files.length
+                ? this.files[0].name
+                : "No file selected";
+            }
+          });
+      });
+    </script>
+    <script src="/lib/dat.gui.min.js"></script>
+    <script src="/lib/three.js"></script>
+    <script src="/lib/OrbitControls.js"></script>
+    <script src="./texture.js"></script>
+
+    <!-- Mobile: Add this right after <body> tag -->
+    <div id="mobile-blocker">
+      <p>This application is only available on desktop devices.</p>
+      <p>Please use a device with a larger screen.</p>
+    </div>
+
+    <a
+      href="#"
+      class="github-corner"
+      id="github-link"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="/assets/logos/github-logo/github-mark.png"
+        alt="GitHub Repository"
+      />
+    </a>
+  </body>
+</html>
