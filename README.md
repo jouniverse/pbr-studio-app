@@ -18,6 +18,8 @@
 ![UI Screenshot](./assets/imgs/ui-1.png)
 ![UI Screenshot](./assets/imgs/ui-2.png)
 
+A walkthrough of the app is available [here](https://youtu.be/7OkwRz5IT4U).
+
 ## License
 
 All Rights Reserved.
