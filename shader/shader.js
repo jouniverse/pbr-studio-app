@@ -156,7 +156,6 @@ function init() {
   other2.add(lightRight, "angle", 0, Math.PI / 2).name("angle");
   other2.add(lightRight, "decay", 0, 2).name("decay");
 
-  // After geometry folder and before texture folder, add:
   var folder2 = gui.addFolder("material");
 
   // Add transparency controls
@@ -203,7 +202,7 @@ function init() {
 
   emissionFolder.add(objMaterial, "emissiveIntensity", 0, 1).name("intensity");
 
-  // Replace the single fog control with a fog subfolder in material folder
+  // Fog
   var fogFolder = folder2.addFolder("fog");
 
   // Use fog control
