@@ -703,8 +703,8 @@ function clearTextures() {
   // Reset fog parameters
   fogParams.enabled = true;
   fogParams.color = "#000000";
-  fogParams.near = 1;
-  fogParams.far = 1000;
+  fogParams.near = 0.5;
+  fogParams.far = 30;
 
   scene.fog.color.set(fogParams.color);
   scene.fog.near = fogParams.near;
@@ -858,8 +858,8 @@ function loadDefaultTextures(material) {
     // Reset fog parameters
     fogParams.enabled = true;
     fogParams.color = "#000000";
-    fogParams.near = 1;
-    fogParams.far = 1000;
+    fogParams.near = 0.5;
+    fogParams.far = 30;
 
     scene.fog.color.set(fogParams.color);
     scene.fog.near = fogParams.near;
