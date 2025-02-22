@@ -1,6 +1,6 @@
 # PBR Studio
 
-**[PBR Studio](https://jouniverse.github.io/pbr-studio-app/shader/shader.html)** is a visualization and rendering tool for textured materials.
+**[PBR Studio](https://jouniverse.github.io/pbr-studio-app/shader/shader.html)** is a visualization and rendering tool for textured PBR materials.
 
 ## Features
 
