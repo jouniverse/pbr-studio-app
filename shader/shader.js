@@ -21,10 +21,21 @@ var reflectionCube;
 var showBackground = true;
 var envMapDisabled = false;
 
+// Add these with other global variables
+var fogParams = {
+  enabled: true,
+  color: "#000000",
+  near: 0.5,
+  far: 30,
+};
+
 function init() {
   //  add cubemap to the scene
   scene = new THREE.Scene();
   gui = new dat.GUI();
+
+  // Add fog to scene after scene creation
+  scene.fog = new THREE.Fog(fogParams.color, fogParams.near, fogParams.far);
 
   // Add geometry selection
   var geometryState = {
@@ -145,10 +156,99 @@ function init() {
   other2.add(lightRight, "angle", 0, Math.PI / 2).name("angle");
   other2.add(lightRight, "decay", 0, 2).name("decay");
 
-  var folder2 = gui.addFolder("texture");
+  // After geometry folder and before texture folder, add:
+  var folder2 = gui.addFolder("material");
+
+  // Add transparency controls
+  folder2
+    .add({ transparent: false }, "transparent")
+    .name("transparent")
+    .onChange(function (value) {
+      objMaterial.transparent = value;
+      objMaterial.needsUpdate = true;
+    });
+
+  folder2
+    .add({ opacity: 1.0 }, "opacity", 0, 1)
+    .name("opacity")
+    .onChange(function (value) {
+      objMaterial.opacity = value;
+      objMaterial.needsUpdate = true;
+    });
+
+  // Add color control
+  var materialParams = {
+    color: "#FFFFFF", // Default white color
+    emissive: "#000000", // Default black (no emission)
+  };
+
+  folder2
+    .addColor(materialParams, "color")
+    .name("color")
+    .onChange(function (value) {
+      objMaterial.color.set(value);
+      objMaterial.needsUpdate = true;
+    });
+
+  // Add emission subfolder
+  var emissionFolder = folder2.addFolder("emission");
+
+  emissionFolder
+    .addColor(materialParams, "emissive")
+    .name("color")
+    .onChange(function (value) {
+      objMaterial.emissive.set(value);
+      objMaterial.needsUpdate = true;
+    });
+
+  emissionFolder.add(objMaterial, "emissiveIntensity", 0, 1).name("intensity");
+
+  // Replace the single fog control with a fog subfolder in material folder
+  var fogFolder = folder2.addFolder("fog");
+
+  // Use fog control
+  fogFolder
+    .add(fogParams, "enabled")
+    .name("use")
+    .onChange(function (value) {
+      objMaterial.fog = value;
+      scene.fog.near = value ? fogParams.near : 30; // Hide fog when disabled
+      scene.fog.far = value ? fogParams.far : 60;
+      objMaterial.needsUpdate = true;
+    });
+
+  // Fog color
+  fogFolder
+    .addColor(fogParams, "color")
+    .name("color")
+    .onChange(function (value) {
+      scene.fog.color.set(value);
+    });
+
+  // Near distance
+  fogFolder
+    .add(fogParams, "near", 0, 30)
+    .name("near")
+    .onChange(function (value) {
+      if (fogParams.enabled) {
+        scene.fog.near = value;
+      }
+    });
+
+  // Far distance
+  fogFolder
+    .add(fogParams, "far", 0, 60)
+    .name("far")
+    .onChange(function (value) {
+      if (fogParams.enabled) {
+        scene.fog.far = value;
+      }
+    });
+
+  var folder3 = gui.addFolder("texture");
   // Store repeat controls in guiControls
   window.guiControls = {
-    repeatX: folder2
+    repeatX: folder3
       .add(repeatX, "value", 0, 10)
       .name("repeat X")
       .onChange(function (value) {
@@ -159,7 +259,7 @@ function init() {
         });
       }),
 
-    repeatY: folder2
+    repeatY: folder3
       .add(repeatY, "value", 0, 10)
       .name("repeat Y")
       .onChange(function (value) {
@@ -171,16 +271,16 @@ function init() {
       }),
 
     // ... rest of the controls
-    bumpScale: folder2.add(objMaterial, "bumpScale", 0, 2),
-    roughness: folder2.add(objMaterial, "roughness", 0, 1),
-    metalness: folder2.add(objMaterial, "metalness", 0, 1),
-    aoMapIntensity: folder2.add(objMaterial, "aoMapIntensity", 0, 1),
-    displacementBias: folder2.add(objMaterial, "displacementBias", -0.1, 0.1),
-    displacementScale: folder2.add(objMaterial, "displacementScale", -1, 1),
+    bumpScale: folder3.add(objMaterial, "bumpScale", 0, 2),
+    roughness: folder3.add(objMaterial, "roughness", 0, 1),
+    metalness: folder3.add(objMaterial, "metalness", 0, 1),
+    aoMapIntensity: folder3.add(objMaterial, "aoMapIntensity", 0, 1),
+    displacementBias: folder3.add(objMaterial, "displacementBias", -0.1, 0.1),
+    displacementScale: folder3.add(objMaterial, "displacementScale", -1, 1),
   };
 
   // Create normal subfolder and add controls
-  var normalFolder = folder2.addFolder("normal");
+  var normalFolder = folder3.addFolder("normal");
   window.guiControls.normalScaleX = normalFolder
     .add(objMaterial.normalScale, "x", 0, 1)
     .name("x");
@@ -202,9 +302,9 @@ function init() {
     control.updateDisplay()
   );
 
-  var folder3 = gui.addFolder("env map");
+  var folder4 = gui.addFolder("env map");
   // Add cubemap selector
-  folder3
+  folder4
     .add({ cubemap: currentCubemapNumber }, "cubemap", {
       "Cubemap 1": 1,
       "Cubemap 2": 2,
@@ -227,10 +327,10 @@ function init() {
         objMaterial.needsUpdate = true;
       }
     });
-  folder3.add(objMaterial, "envMapIntensity", 0, 10);
+  folder4.add(objMaterial, "envMapIntensity", 0, 10);
 
   // Add global enable/disable control
-  folder3
+  folder4
     .add({ disabled: false }, "disabled")
     .name("disable env")
     .onChange(function (value) {
@@ -248,7 +348,7 @@ function init() {
     });
 
   // Add visibility control
-  folder3
+  folder4
     .add({ visible: true }, "visible")
     .name("show env")
     .onChange(function (value) {
@@ -260,12 +360,12 @@ function init() {
     });
 
   // Camera controls (now after camera is created)
-  var folder4 = gui.addFolder("camera");
-  folder4.add(camera.position, "x", -20, 20).name("position x");
-  folder4.add(camera.position, "y", -20, 20).name("position y");
-  folder4.add(camera.position, "z", -20, 20).name("position z");
+  var folder5 = gui.addFolder("camera");
+  folder5.add(camera.position, "x", -20, 20).name("position x");
+  folder5.add(camera.position, "y", -20, 20).name("position y");
+  folder5.add(camera.position, "z", -20, 20).name("position z");
 
-  folder4
+  folder5
     .add(
       {
         reset: function () {
@@ -529,8 +629,15 @@ function clearTextures() {
     uploadedTextures[key] = null;
   });
 
+  // Reset material properties
+  objMaterial.transparent = false;
+  objMaterial.opacity = 1.0;
+  objMaterial.color.setStyle("#FFFFFF");
+  objMaterial.emissive.setStyle("#000000");
+  objMaterial.emissiveIntensity = 1.0;
+  objMaterial.fog = true;
+
   // Reset material properties to default
-  objMaterial.color.setStyle("rgb(255, 255, 255)");
   objMaterial.bumpScale = 1;
   objMaterial.normalScale.set(1, 1);
   objMaterial.displacementBias = 0;
@@ -584,6 +691,35 @@ function clearTextures() {
     if (light1ColorControl) light1ColorControl.updateDisplay();
     if (light2ColorControl) light2ColorControl.updateDisplay();
   }
+
+  // Find and update the material controls
+  const materialControlsFolder = gui.__folders["material"];
+  if (materialControlsFolder) {
+    materialControlsFolder.__controllers.forEach((control) => {
+      control.updateDisplay();
+    });
+  }
+
+  // Reset fog parameters
+  fogParams.enabled = true;
+  fogParams.color = "#000000";
+  fogParams.near = 1;
+  fogParams.far = 1000;
+
+  scene.fog.color.set(fogParams.color);
+  scene.fog.near = fogParams.near;
+  scene.fog.far = fogParams.far;
+  objMaterial.fog = fogParams.enabled;
+
+  // Update GUI controls including fog folder
+  if (materialControlsFolder) {
+    const fogFolder = materialControlsFolder.__folders["fog"];
+    if (fogFolder) {
+      fogFolder.__controllers.forEach((control) => {
+        control.updateDisplay();
+      });
+    }
+  }
 }
 
 function loadDefaultTextures(material) {
@@ -621,6 +757,7 @@ function loadDefaultTextures(material) {
     material.aoMapIntensity = 0.5;
     material.roughness = 0.92;
     material.metalness = 0.01;
+    material.fog = true;
 
     // Set repeat values
     repeatX.value = 3;
@@ -668,6 +805,22 @@ function loadDefaultTextures(material) {
 
     material.needsUpdate = true;
 
+    // Reset material properties
+    material.transparent = false;
+    material.opacity = 1.0;
+    material.color.setStyle("#FFFFFF");
+    material.emissive.setStyle("#000000");
+    material.emissiveIntensity = 1.0;
+    material.fog = true;
+
+    // Find and update the material controls
+    const materialControlsFolder = gui.__folders["material"];
+    if (materialControlsFolder) {
+      materialControlsFolder.__controllers.forEach((control) => {
+        control.updateDisplay();
+      });
+    }
+
     // Reset light colors to default
     lightLeftParams.color = "#FFE0B4";
     lightRightParams.color = "#FFE0B4";
@@ -700,6 +853,27 @@ function loadDefaultTextures(material) {
 
       if (light1ColorControl) light1ColorControl.updateDisplay();
       if (light2ColorControl) light2ColorControl.updateDisplay();
+    }
+
+    // Reset fog parameters
+    fogParams.enabled = true;
+    fogParams.color = "#000000";
+    fogParams.near = 1;
+    fogParams.far = 1000;
+
+    scene.fog.color.set(fogParams.color);
+    scene.fog.near = fogParams.near;
+    scene.fog.far = fogParams.far;
+    material.fog = fogParams.enabled;
+
+    // Update GUI controls including fog folder
+    if (materialControlsFolder) {
+      const fogFolder = materialControlsFolder.__folders["fog"];
+      if (fogFolder) {
+        fogFolder.__controllers.forEach((control) => {
+          control.updateDisplay();
+        });
+      }
     }
   } catch (error) {
     console.error("Error loading default textures:", error);
