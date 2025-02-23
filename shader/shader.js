@@ -1,4 +1,4 @@
-var GEO_TYPES = ["box", "octahedron", "sphere", "torus"];
+var GEO_TYPES = ["box", "octahedron", "plane", "sphere", "torus"];
 
 var uploadedTextures = {
   map: null, // base color
@@ -77,7 +77,7 @@ function init() {
 
   var geoTypes = GEO_TYPES;
 
-  var obj = getGeometry(geoTypes[2], 1, objMaterial);
+  var obj = getGeometry(geoTypes[3], 1, objMaterial);
   obj.name = "obj";
 
   // add lights
@@ -436,7 +436,7 @@ function getGeometry(type, size, material) {
 
   switch (type) {
     case "box":
-      geometry = new THREE.BoxGeometry(size, size, size);
+      geometry = new THREE.BoxGeometry(2 * size, 2 * size, 2 * size);
       break;
     case "cone":
       geometry = new THREE.ConeGeometry(size, size, 256 * segmentMultiplier);
@@ -450,25 +450,20 @@ function getGeometry(type, size, material) {
       );
       break;
     case "octahedron":
-      geometry = new THREE.OctahedronGeometry(size);
+      geometry = new THREE.OctahedronGeometry(2 * size);
+      break;
+    case "plane":
+      geometry = new THREE.PlaneGeometry(3 * size, 3 * size);
+      material.side = THREE.DoubleSide; // Make sure plane is visible from both sides
       break;
     case "sphere":
-      geometry = new THREE.SphereGeometry(
-        size,
-        64 * segmentMultiplier,
-        64 * segmentMultiplier
-      );
+      geometry = new THREE.SphereGeometry(size, 32, 32);
       break;
     case "tetrahedron":
       geometry = new THREE.TetrahedronGeometry(size);
       break;
     case "torus":
-      geometry = new THREE.TorusGeometry(
-        size / 2,
-        size / 4,
-        64 * segmentMultiplier,
-        400 * segmentMultiplier
-      );
+      geometry = new THREE.TorusGeometry(size, size * 0.6, 16, 100);
       break;
     case "torusKnot":
       geometry = new THREE.TorusKnotGeometry(
@@ -479,7 +474,7 @@ function getGeometry(type, size, material) {
       );
       break;
     default:
-      break;
+      geometry = new THREE.SphereGeometry(size, 32, 32);
   }
 
   var obj = new THREE.Mesh(geometry, material);

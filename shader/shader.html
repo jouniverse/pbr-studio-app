@@ -200,7 +200,7 @@
       .github-corner img {
         width: 40px;
         height: 40px;
-        opacity: 0.7;
+        opacity: 0.4;
         transition: opacity 0.3s ease;
       }
 
@@ -241,6 +241,29 @@
       /* Add style for dat.gui */
       .dg.ac {
         z-index: 9999 !important;
+      }
+
+      .gallery-corner {
+        position: fixed;
+        bottom: 70px; /* Position above GitHub icon */
+        right: 20px;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+      }
+
+      .gallery-corner img {
+        width: 40px;
+        height: 40px;
+        opacity: 0.4;
+        transition: opacity 0.3s ease;
+      }
+
+      .gallery-corner:hover {
+        transform: scale(1.1);
+      }
+
+      .gallery-corner:hover img {
+        opacity: 1;
       }
     </style>
   </head>
@@ -402,6 +425,16 @@
         src="../assets/logos/github-logo/github-mark.png"
         alt="GitHub Repository"
       />
+    </a>
+
+    <!-- Add this right before the GitHub corner -->
+    <a
+      href="gallery.html"
+      class="gallery-corner"
+      id="gallery-link"
+      rel="noopener noreferrer"
+    >
+      <img src="../assets/logos/gallery-icon.png" alt="Gallery" />
     </a>
   </body>
 </html>
