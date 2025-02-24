@@ -382,7 +382,7 @@ function init() {
   renderer.shadowMap.enabled = true;
   document.getElementById("webgl").appendChild(renderer.domElement);
 
-  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
   // Add distance limits
   controls.minDistance = 2.6; // Prevents getting too close to the obj
